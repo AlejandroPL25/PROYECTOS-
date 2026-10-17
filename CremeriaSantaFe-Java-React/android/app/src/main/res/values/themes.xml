@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.CremeriaSantaFe" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#3C1361</item>
+        <item name="android:statusBarColor">#3C1361</item>
+        <item name="android:windowBackground">#BFE7F7</item>
+    </style>
+</resources>

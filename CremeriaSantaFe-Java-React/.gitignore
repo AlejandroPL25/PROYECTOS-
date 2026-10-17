@@ -1,0 +1,13 @@
+.gradle/
+build/
+local.properties
+captures/
+*.apk
+*.aab
+*.iml
+.cxx/
+.idea/
+.DS_Store
+react-app/node_modules/
+react-app/dist/
+npm-debug.log*
