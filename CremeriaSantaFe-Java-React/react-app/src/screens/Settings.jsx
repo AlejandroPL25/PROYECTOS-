@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { api } from '../api';
 import { ModalConfirmar, ModalError, ModalExito } from '../components/Modal';
 
 export default function Settings({ sesion, onVolver }) {
@@ -15,11 +15,11 @@ export default function Settings({ sesion, onVolver }) {
 
   const cargar = async () => {
     try {
-      const a = await bridge.obtenerAjustes();
+      const a = await api.obtenerAjustes();
       setClaveDefecto(!!a.claveAdminPorDefecto);
       setNumero(a.whatsappNumero || '');
       setNotificaciones(!!a.notificaciones);
-      setUsuarios(await bridge.listarUsuarios());
+      setUsuarios(await api.listarUsuarios());
     } catch (e) {
       setError(e.message);
     }
@@ -80,7 +80,7 @@ export default function Settings({ sesion, onVolver }) {
             />
           </div>
 
-          <button className="boton-primario" onClick={() => ejecutar(() => bridge.guardarAjustes(numero, notificaciones), 'Los ajustes de alertas se guardaron correctamente.')}>
+          <button className="boton-primario" onClick={() => ejecutar(() => api.guardarAjustes(numero, notificaciones), 'Los ajustes de alertas se guardaron correctamente.')}>
             Guardar ajustes
           </button>
         </div>
@@ -118,7 +118,7 @@ export default function Settings({ sesion, onVolver }) {
                   <button
                     className="boton-primario"
                     style={{ width: 'auto', padding: '10px 14px', fontSize: 13 }}
-                    onClick={() => ejecutar(async () => { await bridge.cambiarContrasena(cambiando.id, cambiando.clave); setCambiando(null); }, `Se actualizó la contraseña de ${cambiando.usuario}.`)}
+                    onClick={() => ejecutar(async () => { await api.cambiarContrasena(cambiando.id, cambiando.clave); setCambiando(null); }, `Se actualizó la contraseña de ${cambiando.usuario}.`)}
                   >
                     Guardar
                   </button>
@@ -145,7 +145,7 @@ export default function Settings({ sesion, onVolver }) {
           </div>
           <button
             className="boton-secundario"
-            onClick={() => ejecutar(async () => { await bridge.crearUsuario(nuevo.usuario, nuevo.clave, nuevo.rol); setNuevo({ usuario: '', clave: '', rol: 'empleado' }); }, 'El usuario se creó correctamente.')}
+            onClick={() => ejecutar(async () => { await api.crearUsuario(nuevo.usuario, nuevo.clave, nuevo.rol); setNuevo({ usuario: '', clave: '', rol: 'empleado' }); }, 'El usuario se creó correctamente.')}
           >
             + Agregar usuario
           </button>
@@ -157,7 +157,7 @@ export default function Settings({ sesion, onVolver }) {
           titulo="¿Eliminar usuario?"
           mensaje={`Se eliminará el acceso de “${aEliminar.usuario}”. Esta acción no se puede deshacer.`}
           textoConfirmar="Eliminar"
-          onConfirmar={() => { const u = aEliminar; setAEliminar(null); ejecutar(() => bridge.eliminarUsuario(u.id), 'El usuario se eliminó.'); }}
+          onConfirmar={() => { const u = aEliminar; setAEliminar(null); ejecutar(() => api.eliminarUsuario(u.id), 'El usuario se eliminó.'); }}
           onCancelar={() => setAEliminar(null)}
         />
       )}

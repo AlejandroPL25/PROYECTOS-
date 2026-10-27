@@ -24,6 +24,12 @@ public final class Notificador {
 
     private Notificador() {}
 
+    /** 3.0 -> "3", 2.5 -> "2.5" */
+    private static String formato(double valor) {
+        if (valor == Math.rint(valor)) return String.valueOf((long) valor);
+        return String.valueOf(Math.round(valor * 100.0) / 100.0);
+    }
+
     public static void crearCanal(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel canal = new NotificationChannel(
@@ -50,7 +56,7 @@ public final class Notificador {
             JSONObject a = alertas.optJSONObject(i);
             if (a == null) continue;
             estilo.addLine(a.optString("nombre") + ": quedan " +
-                    DatabaseHelper.formato(a.optDouble("cantidad")) + " " + a.optString("unidad"));
+                    formato(a.optDouble("cantidad")) + " " + a.optString("unidad"));
         }
 
         String titulo = alertas.length() == 1

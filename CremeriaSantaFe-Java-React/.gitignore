@@ -1,13 +1,27 @@
+# Android / Gradle
 .gradle/
 build/
 local.properties
 captures/
 *.apk
 *.aab
-*.iml
-.cxx/
+
+# IDEs
 .idea/
+*.iml
+.vscode/
+
+# React (Vite)
+node_modules/
+dist/
+
+# Servidor Flask
+.venv/
+__pycache__/
+*.pyc
+*.db
+.secret_key
+
+# Sistema
 .DS_Store
-react-app/node_modules/
-react-app/dist/
-npm-debug.log*
+Thumbs.db

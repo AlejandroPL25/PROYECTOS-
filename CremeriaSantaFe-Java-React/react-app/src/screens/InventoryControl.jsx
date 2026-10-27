@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { api } from '../api';
 import BottomNav from '../components/BottomNav';
 import { ModalError } from '../components/Modal';
 
@@ -15,13 +15,13 @@ export default function InventoryControl({ onNavegar }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    bridge.obtenerProductos().then(setProductos).catch(() => {});
-    bridge.obtenerProductosFaltantes().then(setFaltantes).catch(() => {});
+    api.obtenerProductos().then(setProductos).catch(api.mostrarError);
+    api.obtenerProductosFaltantes().then(setFaltantes).catch(api.mostrarError);
   }, []);
 
   const avisarPorWhatsApp = async () => {
     try {
-      await bridge.avisarStockBajoWhatsApp();
+      await api.avisarStockBajoWhatsApp();
     } catch (e) {
       setError(e.message);
     }

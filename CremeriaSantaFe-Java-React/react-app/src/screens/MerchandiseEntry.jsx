@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { api } from '../api';
 import { ModalError, ModalExito } from '../components/Modal';
 
 const HOY = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -13,13 +13,13 @@ export default function MerchandiseEntry({ onVolver }) {
   const [exito, setExito] = useState(false);
 
   useEffect(() => {
-    bridge.obtenerProductos().then(setProductos).catch(() => {});
+    api.obtenerProductos().then(setProductos).catch(api.mostrarError);
   }, []);
 
   const guardar = async () => {
     const producto = productos.find((p) => String(p.id) === String(productoId));
     try {
-      await bridge.registrarEntrada(producto?.id, producto?.nombre, parseFloat(cantidad), proveedor);
+      await api.registrarEntrada(producto?.id, producto?.nombre, parseFloat(cantidad), proveedor);
       setExito(true);
     } catch (e) {
       setError(e.message);

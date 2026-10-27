@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { useEffect, useRef, useState } from 'react';
+import { api } from '../api';
 import BottomNav from '../components/BottomNav';
+import { nativo } from '../nativo';
 import { ModalError } from '../components/Modal';
 
 const HOY = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -26,14 +27,32 @@ export default function Dashboard({ sesion, onNavegar, onSalir }) {
   const [claveDefecto, setClaveDefecto] = useState(false);
   const [error, setError] = useState(null);
 
+  const alertasPrevias = useRef(null); // para notificar solo cuando las alertas AUMENTAN
+  const notificar = useRef(true);
+
   useEffect(() => {
-    bridge.obtenerResumenDia().then(setResumen).catch(() => {});
-    bridge.obtenerAjustes().then((a) => setClaveDefecto(!!a.claveAdminPorDefecto)).catch(() => {});
+    api.obtenerResumenDia().then((r) => { setResumen(r); alertasPrevias.current = r.alertasStock; }).catch(api.mostrarError);
+    api.obtenerAjustes().then((a) => { setClaveDefecto(!!a.claveAdminPorDefecto); notificar.current = !!a.notificaciones; }).catch(() => {});
+
+    // Cada 30 s revisa (sin spinner) si otro celular -por ejemplo el del empleado- dejó productos en stock bajo.
+    const revisar = async () => {
+      try {
+        const r = await api.obtenerResumenDia({ silencioso: true });
+        setResumen(r);
+        if (alertasPrevias.current !== null && r.alertasStock > alertasPrevias.current && notificar.current) {
+          const faltantes = await api.obtenerProductosFaltantes({ silencioso: true });
+          nativo.notificarStockBajo(faltantes, '');
+        }
+        alertasPrevias.current = r.alertasStock;
+      } catch (e) { /* sin conexión: se vuelve a intentar en el siguiente ciclo */ }
+    };
+    const temporizador = setInterval(revisar, 30000);
+    return () => clearInterval(temporizador);
   }, []);
 
   const avisarPorWhatsApp = async () => {
     try {
-      await bridge.avisarStockBajoWhatsApp();
+      await api.avisarStockBajoWhatsApp();
     } catch (e) {
       setError(e.message);
     }

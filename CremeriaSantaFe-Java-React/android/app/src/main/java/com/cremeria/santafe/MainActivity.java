@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
         // (si no, el WebView los bloquea por CORS y la pantalla queda en blanco).
         settings.setAllowFileAccessFromFileURLs(true);
         settings.setAllowUniversalAccessFromFileURLs(true);
+        // La interfaz (file://) consulta la API del servidor por http dentro de la red local.
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         // Inspección con chrome://inspect solo cuando la app es de depuración
         boolean esDepuracion = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;

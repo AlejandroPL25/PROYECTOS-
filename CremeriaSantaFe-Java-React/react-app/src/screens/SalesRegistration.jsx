@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { api } from '../api';
 import { ModalError, ModalExito, ModalStockBajo } from '../components/Modal';
 import BottomNav from '../components/BottomNav';
+import { nativo } from '../nativo';
 
 let siguienteLineaId = 1;
 const lineaVacia = () => ({ lineaId: siguienteLineaId++, productoId: '', cantidadTexto: '1' });
@@ -17,7 +18,7 @@ export default function SalesRegistration({ sesion, onNavegar, onSalir }) {
   const [alertas, setAlertas] = useState(null);
   const [enviando, setEnviando] = useState(false);
 
-  const cargarProductos = () => bridge.obtenerProductos().then(setProductos).catch((e) => setError(e.message));
+  const cargarProductos = () => api.obtenerProductos().then(setProductos).catch((e) => setError(e.message));
   useEffect(() => { cargarProductos(); }, []);
 
   const productoDe = (id) => productos.find((p) => String(p.id) === String(id));
@@ -45,9 +46,13 @@ export default function SalesRegistration({ sesion, onNavegar, onSalir }) {
       .map((l) => ({ productoId: Number(l.productoId), cantidad: aNumero(l.cantidadTexto) }));
     setEnviando(true);
     try {
-      const resultado = await bridge.registrarVenta(items);
-      if (resultado.alertas && resultado.alertas.length > 0) setAlertas(resultado.alertas);
-      else setExito(true);
+      const resultado = await api.registrarVenta(items);
+      if (resultado.alertas && resultado.alertas.length > 0) {
+        setAlertas(resultado.alertas);
+        if (resultado.notificaciones) nativo.notificarStockBajo(resultado.alertas, resultado.whatsappUrl);
+      } else {
+        setExito(true);
+      }
     } catch (e) {
       setError(e.message);
     } finally {
@@ -65,7 +70,7 @@ export default function SalesRegistration({ sesion, onNavegar, onSalir }) {
 
   const avisarPorWhatsApp = async () => {
     try {
-      await bridge.avisarStockBajoWhatsApp();
+      await api.avisarStockBajoWhatsApp();
     } catch (e) {
       setError(e.message);
     }

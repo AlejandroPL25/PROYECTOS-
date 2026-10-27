@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { api } from '../api';
 
 const TABS = ['Hoy', 'Semana', 'Mes'];
 const MES_ACTUAL = new Date().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+const PERIODO = { Hoy: 'hoy', Semana: 'semana', Mes: 'mes' };
+const ETIQUETA = { Hoy: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long' }), Semana: 'Últimos 7 días', Mes: MES_ACTUAL };
 
 export default function TopProducts({ onVolver }) {
   const [productos, setProductos] = useState([]);
   const [tab, setTab] = useState('Mes');
 
   useEffect(() => {
-    bridge.obtenerMasVendidos(8).then(setProductos).catch(() => {});
-  }, []);
+    api.obtenerMasVendidos(8, PERIODO[tab]).then(setProductos).catch(api.mostrarError);
+  }, [tab]);
 
   const maximo = productos[0]?.vecesVendido || 1;
 
@@ -36,7 +38,7 @@ export default function TopProducts({ onVolver }) {
         <div className="tarjeta">
           <div className="fila" style={{ marginBottom: 12 }}>
             <span style={{ fontWeight: 700, fontSize: 13 }}>Reporte de Ventas (Volumen)</span>
-            <span className="texto-secundario" style={{ textTransform: 'capitalize' }}>{MES_ACTUAL}</span>
+            <span className="texto-secundario" style={{ textTransform: 'capitalize' }}>{ETIQUETA[tab]}</span>
           </div>
 
           {productos.map((p, i) => {

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { useEffect, useRef, useState } from 'react';
+import { api } from '../api';
 import { ModalError, ModalExito } from '../components/Modal';
 
 const UNIDADES = ['Kg', 'Lt', 'Pza'];
@@ -17,26 +17,30 @@ export default function ProductRegistration({ onVolver }) {
   const [exito, setExito] = useState(false);
 
   useEffect(() => {
-    bridge.obtenerCategorias()
+    api.obtenerCategorias()
       .then((lista) => { setCategorias(lista); setCategoria((c) => c || lista[0]); })
       .catch((e) => setError(e.message));
   }, []);
 
   // Al escribir el nombre se detecta la categoría y se selecciona sola (leche -> Lácteos y Quesos)
-  const cambiarNombre = async (valor) => {
+  const temporizador = useRef(null);
+  const cambiarNombre = (valor) => {
     setNombre(valor);
-    try {
-      const sugerida = await bridge.categoriaSugerida(valor);
-      setDetectada(sugerida);
-      if (sugerida) setCategoria(sugerida);
-    } catch (e) { /* la validación final la hace Java al guardar */ }
+    clearTimeout(temporizador.current);
+    temporizador.current = setTimeout(async () => {
+      try {
+        const sugerida = await api.categoriaSugerida(valor);
+        setDetectada(sugerida);
+        if (sugerida) setCategoria(sugerida);
+      } catch (e) { /* la validación final la hace el servidor al guardar */ }
+    }, 300);
   };
 
   const limpiar = () => { setNombre(''); setPrecio(''); setCantidad(''); setMinimo('5'); setDetectada(''); };
 
   const guardar = async () => {
     try {
-      await bridge.guardarProducto(nombre, categoria, parseFloat(precio), unidad, parseFloat(cantidad), parseFloat(minimo));
+      await api.guardarProducto(nombre, categoria, parseFloat(precio), unidad, parseFloat(cantidad), parseFloat(minimo));
       setExito(true);
     } catch (e) {
       setError(e.message);

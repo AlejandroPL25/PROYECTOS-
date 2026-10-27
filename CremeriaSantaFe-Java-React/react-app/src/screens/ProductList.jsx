@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bridge } from '../bridge';
+import { api } from '../api';
 import BottomNav from '../components/BottomNav';
 
 function BotonFlotante({ onClick }) {
@@ -22,8 +22,8 @@ export default function ProductList({ onNavegar }) {
   const [filtro, setFiltro] = useState('Todos');
 
   useEffect(() => {
-    bridge.obtenerProductos().then(setProductos).catch(() => {});
-    bridge.obtenerCategorias().then(setCategorias).catch(() => {});
+    api.obtenerProductos().then(setProductos).catch(api.mostrarError);
+    api.obtenerCategorias().then(setCategorias).catch(api.mostrarError);
   }, []);
 
   const filtrados = productos
